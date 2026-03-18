@@ -1,144 +1,149 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI عبد الرحمن حمزه</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
-            color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-        #header {
-            background-color: #1a1a2e;
-            padding: 14px 20px;
-            text-align: center;
-            border-bottom: 2px solid #007bff;
-        }
-        #header h2 {
-            color: #007bff;
-            font-size: 1.2rem;
-        }
-        #chat-box {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .message {
-            padding: 12px 18px;
-            border-radius: 12px;
-            max-width: 80%;
-            line-height: 1.7;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-        .user-msg {
-            background-color: #007bff;
-            align-self: flex-start;
-            border-radius: 12px 12px 0 12px;
-        }
-        .ai-msg {
-            background-color: #2a2a2a;
-            align-self: flex-end;
-            border: 1px solid #444;
-            border-radius: 12px 12px 12px 0;
-        }
-        #input-area {
-            display: flex;
-            padding: 15px;
-            background-color: #1e1e1e;
-            gap: 10px;
-            border-top: 1px solid #333;
-        }
-        #user-input {
-            flex: 1;
-            padding: 12px;
-            border: 1px solid #444;
-            border-radius: 8px;
-            background-color: #2a2a2a;
-            color: white;
-            outline: none;
-            font-size: 15px;
-            font-family: inherit;
-        }
-        #user-input:focus { border-color: #007bff; }
-        #send-btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-            font-size: 15px;
-            font-family: inherit;
-            transition: background 0.2s;
-        }
-        #send-btn:hover { background-color: #0056b3; }
-        #send-btn:disabled { background-color: #555; cursor: not-allowed; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI عبد الرحمن حمزه</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#0f0f0f;color:#fff;display:flex;height:100vh;overflow:hidden}
+#sidebar{width:260px;background:#1a1a1a;display:flex;flex-direction:column;border-left:1px solid #2a2a2a;flex-shrink:0}
+#new-chat-btn{margin:12px;padding:12px;background:#007bff;border:none;border-radius:10px;color:#fff;font-size:14px;cursor:pointer;font-family:inherit;transition:.2s}
+#new-chat-btn:hover{background:#0056b3}
+#sidebar-title{padding:0 16px 8px;color:#666;font-size:11px}
+#chats-list{flex:1;overflow-y:auto;padding:0 8px}
+.chat-item{padding:10px 12px;border-radius:8px;cursor:pointer;margin-bottom:4px;font-size:13px;color:#ccc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;justify-content:space-between;transition:.15s}
+.chat-item:hover{background:#2a2a2a}
+.chat-item.active{background:#1e3a5f;color:#fff}
+.chat-item .del-btn{opacity:0;background:none;border:none;color:#f55;cursor:pointer;font-size:14px;padding:0 4px;flex-shrink:0}
+.chat-item:hover .del-btn{opacity:1}
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#header{background:#1a1a2e;padding:12px 20px;text-align:center;border-bottom:2px solid #007bff;flex-shrink:0}
+#header h2{color:#007bff;font-size:1.1rem}
+#chat-box{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
+.message{padding:12px 16px;border-radius:12px;max-width:80%;line-height:1.7;white-space:pre-wrap;word-wrap:break-word}
+.user-msg{background:#007bff;align-self:flex-start;border-radius:12px 12px 0 12px}
+.ai-msg{background:#242424;align-self:flex-end;border:1px solid #333;border-radius:12px 12px 12px 0}
+.msg-img{max-width:200px;max-height:200px;border-radius:8px;display:block;margin-bottom:6px}
+#input-area{background:#1a1a1a;border-top:1px solid #2a2a2a;padding:12px 16px;flex-shrink:0}
+#image-preview-area{display:none;margin-bottom:8px;position:relative;width:fit-content}
+#image-preview{max-height:80px;border-radius:8px;border:1px solid #444}
+#remove-img{position:absolute;top:-6px;right:-6px;background:#e53;border:none;color:#fff;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:12px}
+#input-row{display:flex;gap:8px;align-items:flex-end}
+#user-input{flex:1;padding:11px 14px;border:1px solid #333;border-radius:10px;background:#242424;color:#fff;outline:none;font-size:14px;font-family:inherit;resize:none;max-height:120px;line-height:1.5}
+#user-input:focus{border-color:#007bff}
+.icon-btn{padding:11px 13px;border:none;border-radius:10px;cursor:pointer;font-size:16px;transition:.2s;flex-shrink:0}
+#img-btn{background:#2a2a2a;color:#aaa}
+#img-btn:hover{background:#333;color:#fff}
+#send-btn{background:#007bff;color:#fff}
+#send-btn:hover{background:#0056b3}
+#send-btn:disabled{background:#444;cursor:not-allowed}
+#file-input{display:none}
+#welcome{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:#555}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+</style>
 </head>
 <body>
-    <div id="header">
-        <h2>🤖 AI عبد الرحمن حمزه</h2>
+<div id="sidebar">
+  <button id="new-chat-btn" onclick="newChat()">+ محادثة جديدة</button>
+  <div id="sidebar-title">المحادثات السابقة</div>
+  <div id="chats-list"></div>
+</div>
+<div id="main">
+  <div id="header"><h2>🤖 AI عبد الرحمن حمزه</h2></div>
+  <div id="chat-box">
+    <div id="welcome">
+      <div style="font-size:3rem">🤖</div>
+      <h3 style="font-size:1.2rem;color:#777">AI عبد الرحمن حمزه</h3>
+      <p style="font-size:13px">ابدأ محادثة جديدة أو اختر محادثة سابقة</p>
     </div>
-    <div id="chat-box">
-        <div class="message ai-msg">مرحباً! أنا <strong>AI عبد الرحمن حمزه</strong>، مساعدك الذكي الشخصي. كيف يمكنني مساعدتك اليوم؟</div>
+  </div>
+  <div id="input-area">
+    <div id="image-preview-area">
+      <img id="image-preview" src="" alt=""/>
+      <button id="remove-img" onclick="removeImage()">x</button>
     </div>
-    <div id="input-area">
-        <input type="text" id="user-input" placeholder="اكتب سؤالك هنا..." onkeypress="handleEnter(event)">
-        <button id="send-btn" onclick="sendMessage()">إرسال</button>
+    <div id="input-row">
+      <button class="icon-btn" id="img-btn" onclick="document.getElementById('file-input').click()">🖼</button>
+      <input type="file" id="file-input" accept="image/*" onchange="handleImage(event)"/>
+      <textarea id="user-input" placeholder="اكتب سؤالك هنا..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="icon-btn" id="send-btn" onclick="sendMessage()">➤</button>
     </div>
-    <script>
-        async function sendMessage() {
-            const inputField = document.getElementById('user-input');
-            const chatBox = document.getElementById('chat-box');
-            const sendBtn = document.getElementById('send-btn');
-            const question = inputField.value.trim();
-            if (!question) return;
-
-            const userDiv = document.createElement('div');
-            userDiv.className = 'message user-msg';
-            userDiv.textContent = question;
-            chatBox.appendChild(userDiv);
-
-            inputField.value = '';
-            sendBtn.disabled = true;
-            chatBox.scrollTop = chatBox.scrollHeight;
-
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'message ai-msg';
-            loadingDiv.textContent = 'يكتب...';
-            chatBox.appendChild(loadingDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
-
-            try {
-                const response = await fetch('/ask', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: question })
-                });
-                const data = await response.json();
-                loadingDiv.textContent = data.answer || "حدث خطأ غير متوقع";
-            } catch (error) {
-                loadingDiv.style.color = 'red';
-                loadingDiv.textContent = 'عذراً، حدث خطأ. تأكد أن السيرفر يعمل.';
-            }
-
-            sendBtn.disabled = false;
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        function handleEnter(event) {
-            if (event.key === 'Enter') sendMessage();
-        }
-    </script>
+  </div>
+</div>
+<script>
+let chats=JSON.parse(localStorage.getItem('ai_chats')||'{}');
+let currentId=null,pendingImage=null,pendingMime=null;
+function saveChats(){localStorage.setItem('ai_chats',JSON.stringify(chats));}
+function genId(){return 'c_'+Date.now();}
+function getTitle(msgs){const f=msgs.find(m=>m.role==='user');return f?(f.content||'صورة').slice(0,28):'محادثة جديدة';}
+function renderSidebar(){
+  const list=document.getElementById('chats-list');list.innerHTML='';
+  Object.keys(chats).sort((a,b)=>b.localeCompare(a)).forEach(id=>{
+    const d=document.createElement('div');
+    d.className='chat-item'+(id===currentId?' active':'');
+    d.innerHTML='<span style="overflow:hidden;text-overflow:ellipsis">'+( chats[id].title||'محادثة')+'</span><button class="del-btn">🗑</button>';
+    d.querySelector('.del-btn').onclick=e=>{e.stopPropagation();deleteChat(id);};
+    d.onclick=e=>{if(!e.target.classList.contains('del-btn'))loadChat(id);};
+    list.appendChild(d);
+  });
+}
+function newChat(){
+  currentId=null;
+  document.getElementById('chat-box').innerHTML='<div id="welcome" style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:#555"><div style="font-size:3rem">🤖</div><h3 style="font-size:1.2rem;color:#777">AI عبد الرحمن حمزه</h3><p style="font-size:13px">ابدأ محادثة جديدة</p></div>';
+  renderSidebar();
+}
+function loadChat(id){
+  currentId=id;
+  const box=document.getElementById('chat-box');box.innerHTML='';
+  (chats[id].messages||[]).forEach(m=>appendBubble(m.role,m.content,m.imageData));
+  box.scrollTop=box.scrollHeight;renderSidebar();
+}
+function deleteChat(id){delete chats[id];saveChats();if(currentId===id)newChat();else renderSidebar();}
+function appendBubble(role,content,imgData){
+  const w=document.getElementById('welcome');if(w)w.remove();
+  const box=document.getElementById('chat-box');
+  const div=document.createElement('div');
+  div.className='message '+(role==='user'?'user-msg':'ai-msg');
+  if(imgData){const img=document.createElement('img');img.src=imgData;img.className='msg-img';div.appendChild(img);}
+  if(content){const sp=document.createElement('span');sp.textContent=content;div.appendChild(sp);}
+  box.appendChild(div);box.scrollTop=box.scrollHeight;return div;
+}
+function handleImage(e){
+  const file=e.target.files[0];if(!file)return;
+  pendingMime=file.type||'image/jpeg';
+  const r=new FileReader();
+  r.onload=ev=>{const full=ev.target.result;pendingImage=full.split(',')[1];document.getElementById('image-preview').src=full;document.getElementById('image-preview-area').style.display='block';};
+  r.readAsDataURL(file);e.target.value='';
+}
+function removeImage(){pendingImage=null;pendingMime=null;document.getElementById('image-preview-area').style.display='none';document.getElementById('image-preview').src='';}
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
+async function sendMessage(){
+  const input=document.getElementById('user-input');
+  const sendBtn=document.getElementById('send-btn');
+  const text=input.value.trim();
+  if(!text&&!pendingImage)return;
+  if(!currentId){currentId=genId();chats[currentId]={title:'',messages:[]};}
+  const imgData=pendingImage?'data:'+pendingMime+';base64,'+pendingImage:null;
+  const imgB64=pendingImage,imgMime=pendingMime;
+  chats[currentId].messages.push({role:'user',content:text,imageData:imgData,image:imgB64,mime_type:imgMime});
+  if(!chats[currentId].title)chats[currentId].title=getTitle(chats[currentId].messages);
+  appendBubble('user',text,imgData);
+  input.value='';input.style.height='auto';removeImage();sendBtn.disabled=true;renderSidebar();
+  const loadDiv=appendBubble('model','يكتب...',null);
+  try{
+    const msgs=chats[currentId].messages.map(m=>({role:m.role,content:m.content||'',image:m.image||null,mime_type:m.mime_type||'image/jpeg'}));
+    const res=await fetch('/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:msgs})});
+    const data=await res.json();
+    const answer=data.answer||'حدث خطأ';
+    loadDiv.innerHTML='';const sp=document.createElement('span');sp.textContent=answer;loadDiv.appendChild(sp);
+    chats[currentId].messages.push({role:'model',content:answer});saveChats();
+  }catch(err){loadDiv.style.color='red';loadDiv.textContent='عذراً، تعذر الاتصال.';}
+  sendBtn.disabled=false;document.getElementById('chat-box').scrollTop=999999;
+}
+renderSidebar();
+</script>
 </body>
 </html>
