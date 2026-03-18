@@ -28,35 +28,49 @@ async def ask_ai(req: ChatRequest):
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={API_KEY}"
     headers = {"Content-Type": "application/json"}
 
-    system = {
-        "role": "user",
-        "parts": [{"text": "انت مساعد ذكاء اصطناعي شخصي اسمك 'AI عبد الرحمن حمزه'. تحدث دائما بالعربية. تستطيع تحليل الصور والاجابة على اي سؤال."}]
-    }
-    system_reply = {
-        "role": "model",
-        "parts": [{"text": "حسناً، أنا AI عبد الرحمن حمزه، جاهز لمساعدتك!"}]
-    }
-
-    contents = [system, system_reply]
+    contents = []
 
     for msg in req.messages:
         parts = []
+
+        # Only add image if present (usually last user message)
         if msg.image:
             parts.append({
                 "inline_data": {
-                    "mime_type": msg.mime_type,
+                    "mime_type": msg.mime_type or "image/jpeg",
                     "data": msg.image
                 }
             })
-        parts.append({"text": msg.content or "حلل هذه الصورة"})
-        contents.append({"role": msg.role, "parts": parts})
 
-    data = {"contents": contents}
-    response = requests.post(url, headers=headers, json=data)
-    result = response.json()
+        if msg.content:
+            parts.append({"text": msg.content})
+        elif not msg.image:
+            parts.append({"text": "..."})
+
+        if parts:
+            contents.append({
+                "role": msg.role,
+                "parts": parts
+            })
+
+    # Add system context at beginning
+    system_ctx = [
+        {
+            "role": "user",
+            "parts": [{"text": "انت مساعد ذكاء اصطناعي شخصي اسمك AI عبد الرحمن حمزه. تحدث دائما بالعربية. تستطيع تحليل الصور والاجابة على اي سؤال بشكل منطقي ومفيد."}]
+        },
+        {
+            "role": "model",
+            "parts": [{"text": "حسناً، أنا AI عبد الرحمن حمزه، جاهز لمساعدتك!"}]
+        }
+    ]
+
+    data = {"contents": system_ctx + contents}
 
     try:
+        response = requests.post(url, headers=headers, json=data, timeout=30)
+        result = response.json()
         answer = result["candidates"][0]["content"]["parts"][0]["text"]
         return {"answer": answer}
-    except KeyError:
-        return {"error": "حدث خطأ", "details": result}
+    except Exception as e:
+        return {"error": "حدث خطأ", "details": str(e)}
